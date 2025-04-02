@@ -21,11 +21,12 @@ def add_note():
     global note_id_counter
     data = request.get_json()
     
-    if not data or 'content' not in data:
-        return jsonify({"error": "Content is required"}), 400
+    if not data or 'title' not in data or 'content' not in data:
+        return jsonify({"error": "Title and content are required"}), 400
     
     new_note = {
         "id": note_id_counter,
+        "title": data['title'],
         "content": data['content']
     }
     notes.append(new_note)

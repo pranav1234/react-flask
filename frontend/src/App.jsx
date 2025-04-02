@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -8,24 +7,15 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch notes on component mount
-  useEffect(() => {
-    fetchNotes();
-  }, []);
+  // Check if form is valid (both fields have content)
+  const isFormValid = title.trim() !== "" && content.trim() !== "";
 
-  const fetchNotes = async () => {
-    try {
-      const response = await fetch("http://localhost:5001/api/notes");
-      if (!response.ok) throw new Error("Failed to fetch notes");
-      const data = await response.json();
-      setNotes(data);
-    } catch (err) {
-      setError("Failed to load notes. Please try again later.");
-    }
-  };
+  // ... rest of your fetch notes and useEffect code ...
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isFormValid) return; // Extra validation check
+
     setError("");
     setLoading(true);
 
@@ -51,25 +41,10 @@ function App() {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:5001/api/notes/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete note");
-
-      setNotes(notes.filter((note) => note.id !== id));
-    } catch (err) {
-      setError("Failed to delete note. Please try again.");
-    }
-  };
-
   return (
     <div className="App">
       <h1>Notes App</h1>
 
-      {/* Error Message */}
       {error && (
         <div className="error-message">
           {error}
@@ -77,7 +52,6 @@ function App() {
         </div>
       )}
 
-      {/* Add Note Form */}
       <form onSubmit={handleSubmit} className="note-form">
         <input
           type="text"
@@ -92,26 +66,23 @@ function App() {
           onChange={(e) => setContent(e.target.value)}
           required
         />
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading || !isFormValid}
+          style={{
+            backgroundColor: !isFormValid
+              ? "#ccc"
+              : loading
+              ? "#666"
+              : "#007bff",
+            cursor: !isFormValid ? "not-allowed" : loading ? "wait" : "pointer",
+          }}
+        >
           {loading ? "Adding..." : "Add Note"}
         </button>
       </form>
 
-      {/* Notes List */}
-      <div className="notes-list">
-        {notes.map((note) => (
-          <div key={note.id} className="note-card">
-            <h3>{note.title}</h3>
-            <p>{note.content}</p>
-            <button
-              onClick={() => handleDelete(note.id)}
-              className="delete-btn"
-            >
-              Delete
-            </button>
-          </div>
-        ))}
-      </div>
+      {/* ... rest of your notes list code ... */}
     </div>
   );
 }
